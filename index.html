@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .calculator {
+      background-color: #1e1e1e;
+      border-radius: 20px;
+      padding: 20px;
+      width: 350px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .display {
+      background: #000;
+      color: #0f0;
+      font-size: 32px;
+      padding: 15px;
+      border: none;
+      width: 100%;
+      border-radius: 10px;
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 20px;
+      font-size: 20px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      background-color: #333;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    button.operator {
+      background-color: orange;
+    }
+
+    button.clear {
+      background-color: red;
+    }
+
+    button.advanced {
+      background-color: #555;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .history {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ccc;
+      max-height: 100px;
+      overflow-y: auto;
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .theme-toggle {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .theme-toggle button {
+      background-color: #444;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
+
+    body.light {
+      background-color: #f0f0f0;
+      color: #000;
+    }
+
+    body.light .calculator {
+      background-color: #fff;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    body.light .display {
+      background: #f9f9f9;
+      color: #000;
+    }
+
+    body.light button {
+      background-color: #ddd;
+      color: #000;
+    }
+
+    body.light button.operator {
+      background-color: #f90;
+    }
+
+    body.light button.clear {
+      background-color: #f44;
+    }
+
+    body.light button.advanced {
+      background-color: #bbb;
+    }
+
+    body.light .history {
+      background-color: #eee;
+      color: #222;
+    }
+
+    body.light .theme-toggle button {
+      background-color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">Toggle Light/Dark</button>
+  </div>
+  <input type="text" class="display" id="display" disabled>
+  <div class="buttons">
+    <button class="clear" onclick="clearDisplay()">C</button>
+    <button onclick="deleteLast()">⌫</button>
+    <button class="advanced" onclick="appendFunction('%')">%</button>
+    <button class="operator" onclick="appendOperator('/')">÷</button>
+
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button class="operator" onclick="appendOperator('*')">×</button>
+
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+    <button class="operator" onclick="appendOperator('-')">−</button>
+
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+    <button class="operator" onclick="appendOperator('+')">+</button>
+
+    <button onclick="appendNumber('0')">0</button>
+    <button onclick="appendDecimal()">.</button>
+    <button class="advanced" onclick="appendFunction('sqrt')">√</button>
+    <button class="advanced" onclick="appendFunction('pow')">xʸ</button>
+
+    <button class="advanced" onclick="appendFunction('square')">x²</button>
+    <button class="operator" style="grid-column: span 3;" onclick="calculate()">=</button>
+  </div>
+
+  <div class="history" id="history">
+    <strong>History:</strong><br>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById("display");
+  const history = document.getElementById("history");
+
+  function appendNumber(num) {
+    display.value += num;
+  }
+
+  function appendOperator(op) {
+    const lastChar = display.value.slice(-1);
+    if ("+-*/".includes(lastChar)) return;
+    if (display.value === "") return;
+    display.value += op;
+  }
+
+  function appendDecimal() {
+    const parts = display.value.split(/[\+\-\*\/]/);
+    const lastPart = parts[parts.length - 1];
+    if (!lastPart.includes(".")) {
+      display.value += ".";
+    }
+  }
+
+  function appendFunction(func) {
+    let val = display.value;
+    if (!val) return;
+
+    if (func === 'sqrt') {
+      display.value = `Math.sqrt(${val})`;
+    } else if (func === 'square') {
+      display.value = `Math.pow(${val},2)`;
+    } else if (func === 'pow') {
+      display.value += "**";
+    } else if (func === '%') {
+      display.value += "/100";
+    }
+  }
+
+  function clearDisplay() {
+    display.value = "";
+  }
+
+  function deleteLast() {
+    display.value = display.value.slice(0, -1);
+  }
+
+  function calculate() {
+    try {
+      const result = eval(display.value);
+      history.innerHTML += display.value + " = " + result + "<br>";
+      display.value = result;
+    } catch (e) {
+      display.value = "Error";
+    }
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("light");
+  }
+</script>
+
+</body>
+</html>
